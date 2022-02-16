@@ -5,7 +5,7 @@ SUB_ID=$2
 
 BIDS_DIR="/neurohub/ukbb/imaging/"
 CON_IMG="/home/nikhil/scratch/ukbb_processing/containers/fmriprep_v20.2.0.simg"
-DERIVS_DIR=${DATA_DIR}/output
+DERIVS_DIR=${WD_DIR}/output
 
 LOG_FILE=${WD_DIR}_fmriprep_anat.log
 echo "Starting fmriprep proc with container: ${CON_IMG}"
@@ -14,7 +14,7 @@ echo "Using working dir: ${WD_DIR} and subject ID: ${SUB_ID}"
 
 # Create subject specific dirs
 FMRIPREP_HOME=${DERIVS_DIR}/fmriprep_home_${SUB_ID}
-echo "Processing: sub-${SUB_ID} with home dir: ${FMRIPREP_HOME}"
+echo "Processing: ${SUB_ID} with home dir: ${FMRIPREP_HOME}"
 mkdir -p ${FMRIPREP_HOME}
 
 LOCAL_FREESURFER_DIR="${DERIVS_DIR}/freesurfer-6.0.1"
@@ -36,7 +36,6 @@ export SINGULARITYENV_TEMPLATEFLOW_HOME="/templateflow"
 SINGULARITY_CMD="singularity run \
 --overlay /project/rpp-aevans-ab/neurohub/ukbb/imaging/neurohub_ukbb_t1_ses2_0_bids.squashfs \
 -B ${FMRIPREP_HOME}:/home/fmriprep --home /home/fmriprep --cleanenv \
--B ${BIDS_DIR}:/data:ro \
 -B ${DERIVS_DIR}:/output \
 -B ${TEMPLATEFLOW_HOST_HOME}:${SINGULARITYENV_TEMPLATEFLOW_HOME} \
 -B ${WORK_DIR}:/work \
@@ -46,7 +45,7 @@ SINGULARITY_CMD="singularity run \
 # find ${LOCAL_FREESURFER_DIR}/sub-$SUB_ID/ -name "*IsRunning*" -type f -delete
 
 # Compose the command line
-cmd="${SINGULARITY_CMD} /data /output participant --participant-label $SUB_ID \
+cmd="${SINGULARITY_CMD} $BIDS_DIR /output participant --participant-label $SUB_ID \
 -w /work --output-spaces MNI152NLin2009cAsym:res-2 anat fsnative fsaverage5 \
 --fs-subjects-dir /fsdir \
 --fs-license-file /home/fmriprep/.freesurfer/license.txt \
