@@ -1,10 +1,18 @@
 #!/bin/bash
 
+# Author: nikhil153
+# Last update: 16 Feb 2022
+
+if [ "$#" -ne 2 ]; then
+  echo "Please provide path to the working_dir and subject ID (i.e. subdir inside BIDS_root)"
+  exit 1
+fi
+
 WD_DIR=$1
 SUB_ID=$2
 
 BIDS_DIR="/neurohub/ukbb/imaging/"
-CON_IMG="/home/nikhil/scratch/ukbb_processing/containers/fmriprep_v20.2.0.simg"
+CON_IMG="/home/nikhil/scratch/my_containers/fmriprep_v20.2.0.simg"
 DERIVS_DIR=${WD_DIR}/output
 
 LOG_FILE=${WD_DIR}_fmriprep_anat.log
@@ -60,7 +68,8 @@ cmd="${SINGULARITY_CMD} $BIDS_DIR /output participant --participant-label $SUB_I
 --fs-license-file /home/fmriprep/.freesurfer/license.txt \
 --cifti-out 91k --return-all-components --anat-only \
 --write-graph --skip_bids_validation --notrack --resource-monitor \
---bids-filter-file ${BIDS_FILTER} --anat-only --cifti-out 91k"
+--anat-only"
+#--bids-filter-file ${BIDS_FILTER} --anat-only --cifti-out 91k"
 
 # Setup done, run the command
 #echo Running task ${SLURM_ARRAY_TASK_ID}
