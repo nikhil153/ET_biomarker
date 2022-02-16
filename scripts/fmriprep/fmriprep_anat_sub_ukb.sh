@@ -21,10 +21,19 @@ LOCAL_FREESURFER_DIR="${DERIVS_DIR}/freesurfer-6.0.1"
 mkdir -p ${LOCAL_FREESURFER_DIR}
 
 # Prepare some writeable bind-mount points.
-TEMPLATEFLOW_HOST_HOME=$HOME/scratch/templateflow
 FMRIPREP_HOST_CACHE=$FMRIPREP_HOME/.cache/fmriprep
-#mkdir -p ${TEMPLATEFLOW_HOST_HOME}
 mkdir -p ${FMRIPREP_HOST_CACHE}
+
+# CHECK IF YOU HAVE TEMPLATEFLOW
+TEMPLATEFLOW_HOST_HOME=$HOME/scratch/templateflow
+if [ -d ${TEMPLATEFLOW_HOST_HOME} ];then
+	echo "Templateflow dir already exists!"
+else
+    echo "Downloading templates"
+	mkdir -p ${TEMPLATEFLOW_HOST_HOME}
+	python -c "from templateflow import api; api.get('MNI152NLin2009cAsym')"
+	python -c "from templateflow import api; api.get('OASIS30ANTs')"
+fi
 
 # Make sure FS_LICENSE is defined in the container.
 mkdir -p $FMRIPREP_HOME/.freesurfer
@@ -38,7 +47,7 @@ SINGULARITY_CMD="singularity run \
 -B ${FMRIPREP_HOME}:/home/fmriprep --home /home/fmriprep --cleanenv \
 -B ${DERIVS_DIR}:/output \
 -B ${TEMPLATEFLOW_HOST_HOME}:${SINGULARITYENV_TEMPLATEFLOW_HOME} \
--B ${WORK_DIR}:/work \
+-B ${WD_DIR}:/work \
 -B ${LOCAL_FREESURFER_DIR}:/fsdir ${CON_IMG}"
 
 # Remove IsRunning files from FreeSurfer
